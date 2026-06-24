@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "latest",
+    "axios": "^1.18.1",
     "element-plus": "latest",
-    "vue": "latest"
+    "vue": "latest",
+    "vue-router": "^5.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "latest",
