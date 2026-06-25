@@ -3,13 +3,17 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Picture, UploadFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { submitInit } from '../api/init'
+import { submitInit, createAdmin } from '../api/init'
 import { INIT_FLAG_KEY } from '../router'
 
 const router = useRouter()
 const formRef = ref()
+const adminFormRef = ref()
 const submitting = ref(false)
 const logoPreview = ref('')
+
+// 0：系统配置；1：创建管理员
+const currentStep = ref(0)
 
 const form = reactive({
   logo: null,
@@ -50,6 +54,40 @@ const rules = {
   ],
 }
 
+// 第二步：管理员账户
+const adminForm = reactive({
+  nickname: '',
+  username: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+})
+
+function validateConfirmPassword(rule, value, callback) {
+  if (value !== adminForm.password) {
+    callback(new Error('两次输入的密码不一致'))
+  } else {
+    callback()
+  }
+}
+
+const adminRules = {
+  nickname: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '邮箱格式不正确', trigger: 'blur' },
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, message: '密码至少 6 位', trigger: 'blur' },
+  ],
+  confirmPassword: [
+    { required: true, message: '请再次输入密码', trigger: 'blur' },
+    { validator: validateConfirmPassword, trigger: 'blur' },
+  ],
+}
+
 // el-upload 手动接管：仅保存文件并生成预览，不自动上传
 function handleLogoChange(uploadFile) {
   const file = uploadFile.raw
@@ -75,7 +113,8 @@ function removeLogo() {
   }
 }
 
-async function handleSubmit() {
+// 第一步：提交系统配置，后端返回 status === 'success' 后进入创建管理员
+async function handleSubmitConfig() {
   if (!formRef.value) return
   try {
     await formRef.value.validate()
@@ -85,10 +124,39 @@ async function handleSubmit() {
 
   submitting.value = true
   try {
-    await submitInit(form)
-    localStorage.setItem(INIT_FLAG_KEY, 'true')
-    ElMessage.success('初始化完成')
-    router.replace({ name: 'home' })
+    const res = await submitInit(form)
+    if (res?.status === 'success') {
+      ElMessage.success('系统配置完成，请创建管理员账户')
+      currentStep.value = 1
+    } else {
+      ElMessage.error(res?.message || '初始化失败，请重试')
+    }
+  } catch {
+    // 错误提示已在 axios 拦截器中统一处理
+  } finally {
+    submitting.value = false
+  }
+}
+
+// 第二步：创建管理员账户
+async function handleSubmitAdmin() {
+  if (!adminFormRef.value) return
+  try {
+    await adminFormRef.value.validate()
+  } catch {
+    return
+  }
+
+  submitting.value = true
+  try {
+    const res = await createAdmin(adminForm)
+    if (res?.status === 'success') {
+      localStorage.setItem(INIT_FLAG_KEY, 'true')
+      ElMessage.success('初始化完成')
+      router.replace({ name: 'home' })
+    } else {
+      ElMessage.error(res?.message || '创建管理员失败，请重试')
+    }
   } catch {
     // 错误提示已在 axios 拦截器中统一处理
   } finally {
@@ -105,12 +173,18 @@ async function handleSubmit() {
         <p>欢迎使用云财务管理系统，请完成首次配置以开始使用。</p>
       </div>
 
+      <el-steps :active="currentStep" finish-status="success" align-center class="init-steps">
+        <el-step title="系统配置" />
+        <el-step title="创建管理员" />
+      </el-steps>
+
       <el-form
+        v-show="currentStep === 0"
         ref="formRef"
         :model="form"
         :rules="rules"
         label-position="top"
-        @submit.prevent="handleSubmit"
+        @submit.prevent="handleSubmitConfig"
       >
         <el-form-item label="Logo">
           <el-upload
@@ -210,6 +284,53 @@ async function handleSubmit() {
             :loading="submitting"
             native-type="submit"
           >
+            下一步
+          </el-button>
+        </el-form-item>
+      </el-form>
+
+      <!-- 第二步：创建管理员 -->
+      <el-form
+        v-show="currentStep === 1"
+        ref="adminFormRef"
+        :model="adminForm"
+        :rules="adminRules"
+        label-position="top"
+        @submit.prevent="handleSubmitAdmin"
+      >
+        <el-form-item label="昵称" prop="nickname">
+          <el-input v-model="adminForm.nickname" placeholder="请输入昵称" />
+        </el-form-item>
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="adminForm.username" placeholder="请输入登录用户名" />
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="adminForm.email" placeholder="请输入邮箱" />
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input
+            v-model="adminForm.password"
+            type="password"
+            show-password
+            placeholder="请输入密码（至少 6 位）"
+          />
+        </el-form-item>
+        <el-form-item label="确认密码" prop="confirmPassword">
+          <el-input
+            v-model="adminForm.confirmPassword"
+            type="password"
+            show-password
+            placeholder="请再次输入密码"
+          />
+        </el-form-item>
+
+        <el-form-item>
+          <el-button
+            type="primary"
+            class="full-width"
+            :loading="submitting"
+            native-type="submit"
+          >
             完成初始化
           </el-button>
         </el-form-item>
@@ -246,6 +367,10 @@ async function handleSubmit() {
 .init-header p {
   margin: 0;
   color: #6b7280;
+}
+
+.init-steps {
+  margin-bottom: 28px;
 }
 
 .full-width {

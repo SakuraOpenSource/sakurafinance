@@ -23,3 +23,13 @@ export function submitInit(payload) {
     headers: { 'Content-Type': 'multipart/form-data' },
   })
 }
+
+// 创建管理员账户，以 JSON 形式提交
+export function createAdmin(payload) {
+  return request.post('/admin', {
+    nickname: payload.nickname,
+    username: payload.username,
+    email: payload.email,
+    password: payload.password,
+  })
+}
