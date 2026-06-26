@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router'
 import { Picture, UploadFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { submitInit, createAdmin } from '../api/init'
-import { INIT_FLAG_KEY } from '../router'
 
 const router = useRouter()
 const formRef = ref()
@@ -151,7 +150,6 @@ async function handleSubmitAdmin() {
   try {
     const res = await createAdmin(adminForm)
     if (res?.status === 'success') {
-      localStorage.setItem(INIT_FLAG_KEY, 'true')
       ElMessage.success('初始化完成')
       router.replace({ name: 'home' })
     } else {

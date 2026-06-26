@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
-// 本地标记键：初始化完成后写入，用于判断是否首次启动
-export const INIT_FLAG_KEY = 'sakura-finance-initialized'
+import { getInitStatus } from '../api/init'
 
 const routes = [
   {
@@ -22,9 +20,17 @@ const router = createRouter({
   routes,
 })
 
-// 首次启动（无本地标记）时强制跳转到初始化页
-router.beforeEach((to) => {
-  const initialized = localStorage.getItem(INIT_FLAG_KEY) === 'true'
+router.beforeEach(async (to) => {
+  // 每次启动均向后端查询初始化状态，由后端说了算
+  let initialized = false
+  try {
+    const res = await getInitStatus()
+    initialized = res?.initialized === true
+  } catch {
+    // 查询失败（如后端未就绪）时按未初始化处理，引导用户去初始化页
+    initialized = false
+  }
+
   if (!initialized && to.name !== 'init') {
     return { name: 'init' }
   }
