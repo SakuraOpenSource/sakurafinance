@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { ArrowDown } from '@element-plus/icons-vue'
 import {
   deleteUser,
   getUsers,
@@ -146,6 +147,13 @@ async function handleDelete(row) {
 }
 
 onMounted(load)
+
+// 「更多」下拉命令分发
+function onCommand(cmd, row) {
+  if (cmd === 'edit') openEdit(row)
+  else if (cmd === 'password') openPassword(row)
+  else if (cmd === 'delete') handleDelete(row)
+}
 </script>
 
 <template>
@@ -164,12 +172,21 @@ onMounted(load)
           <span class="balance">¥{{ row.balance.toFixed(2) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="280" fixed="right">
+      <el-table-column label="操作" width="150" fixed="right">
         <template #default="{ row }">
           <el-button text type="primary" @click="openRecharge(row)">充值</el-button>
-          <el-button text type="primary" @click="openEdit(row)">编辑</el-button>
-          <el-button text type="warning" @click="openPassword(row)">重置密码</el-button>
-          <el-button text type="danger" @click="handleDelete(row)">删除</el-button>
+          <el-dropdown trigger="click" @command="(cmd) => onCommand(cmd, row)">
+            <el-button text type="primary">
+              更多<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="edit">编辑</el-dropdown-item>
+                <el-dropdown-item command="password">重置密码</el-dropdown-item>
+                <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
