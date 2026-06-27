@@ -58,6 +58,8 @@ const features = [
       </div>
       <div class="nav-actions">
         <template v-if="userStore.isLoggedIn">
+          <el-button text @click="router.push('/shop')">商城</el-button>
+          <el-button text @click="router.push('/dashboard')">用户中心</el-button>
           <span class="nav-user">{{ userStore.user?.nickname || userStore.user?.username }}</span>
           <el-button text @click="userStore.logout()">退出</el-button>
         </template>

@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { login as loginApi, register as registerApi, fetchMe } from '../api/auth'
+import { adminLogin as adminLoginApi } from '../api/admin'
+import { updateProfile as updateProfileApi } from '../api/user'
 
 const TOKEN_KEY = 'sakura-finance-token'
 
@@ -35,6 +37,21 @@ export const useUserStore = defineStore('user', () => {
     return res
   }
 
+  // 管理员登录（需带入口后缀 slug）
+  async function adminLogin(payload) {
+    const res = await adminLoginApi(payload)
+    setToken(res.token)
+    user.value = res.user
+    return res
+  }
+
+  // 更新本人资料，成功后同步本地 user
+  async function updateProfile(payload) {
+    const res = await updateProfileApi(payload)
+    user.value = res.user
+    return res.user
+  }
+
   // 用已有 token 拉取当前用户，失败则清空登录态
   async function loadMe() {
     if (!token.value) return null
@@ -53,5 +70,5 @@ export const useUserStore = defineStore('user', () => {
     user.value = null
   }
 
-  return { token, user, isLoggedIn, isAdmin, login, register, loadMe, logout }
+  return { token, user, isLoggedIn, isAdmin, login, register, adminLogin, updateProfile, loadMe, logout }
 })
