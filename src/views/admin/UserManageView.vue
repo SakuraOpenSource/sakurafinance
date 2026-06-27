@@ -174,19 +174,21 @@ function onCommand(cmd, row) {
       </el-table-column>
       <el-table-column label="操作" width="150" fixed="right">
         <template #default="{ row }">
-          <el-button text type="primary" @click="openRecharge(row)">充值</el-button>
-          <el-dropdown trigger="click" @command="(cmd) => onCommand(cmd, row)">
-            <el-button text type="primary">
-              更多<el-icon class="el-icon--right"><ArrowDown /></el-icon>
-            </el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="edit">编辑</el-dropdown-item>
-                <el-dropdown-item command="password">重置密码</el-dropdown-item>
-                <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+          <div class="row-actions">
+            <el-button text type="primary" @click="openRecharge(row)">充值</el-button>
+            <el-dropdown trigger="click" @command="(cmd) => onCommand(cmd, row)">
+              <el-button text type="primary">
+                更多<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+              </el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="edit">编辑</el-dropdown-item>
+                  <el-dropdown-item command="password">重置密码</el-dropdown-item>
+                  <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -258,5 +260,11 @@ function onCommand(cmd, row) {
 .dialog-target {
   margin: 0 0 12px;
   color: #374151;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 </style>
