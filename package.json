@@ -12,6 +12,7 @@
     "@element-plus/icons-vue": "latest",
     "axios": "^1.18.1",
     "element-plus": "latest",
+    "pinia": "^3.0.4",
     "vue": "latest",
     "vue-router": "^5.1.0"
   },

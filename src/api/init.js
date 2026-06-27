@@ -5,6 +5,11 @@ export function getInitStatus() {
   return request.get('/init')
 }
 
+// 获取前台展示用的系统配置，后端返回 { name, intro, logoPath }
+export function getConfig() {
+  return request.get('/config')
+}
+
 // 提交初始化配置，logo 以文件形式上传，使用 multipart/form-data
 // SQLite 仅提交 dbType，连接细节交由后端处理；其余提交 dbHost/dbPort/dbUser/dbPassword/dbName
 export function submitInit(payload) {
