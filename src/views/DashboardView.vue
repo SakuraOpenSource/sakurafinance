@@ -100,6 +100,7 @@ onMounted(async () => {
         <div class="balance-box">
           <span class="muted">账户余额</span>
           <span class="balance">¥{{ (userStore.user?.balance ?? 0).toFixed(2) }}</span>
+          <el-button type="primary" size="small" @click="router.push('/recharge')">充值</el-button>
         </div>
       </div>
       <el-descriptions :column="2" border class="profile-desc">

@@ -7,7 +7,6 @@ import {
   removeCartItem as removeCartItemApi,
   checkout as checkoutApi,
 } from '../api/shop'
-
 // 购物车数据存于后端，本 store 仅做内存缓存与操作封装
 export const useCartStore = defineStore('cart', () => {
   const items = ref([])

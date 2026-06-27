@@ -43,6 +43,12 @@ const routes = [
     component: () => import('../views/DashboardView.vue'),
     meta: { requireAuth: true },
   },
+  {
+    path: '/recharge',
+    name: 'recharge',
+    component: () => import('../views/RechargeView.vue'),
+    meta: { requireAuth: true },
+  },
   // 管理后台登录入口：路径含随机后缀 slug，由后端校验是否匹配
   {
     path: '/admin/:slug/login',
@@ -70,6 +76,11 @@ const routes = [
         path: 'payment',
         name: 'admin-payment',
         component: () => import('../views/admin/PaymentView.vue'),
+      },
+      {
+        path: 'users',
+        name: 'admin-users',
+        component: () => import('../views/admin/UserManageView.vue'),
       },
       {
         path: 'admins',

@@ -51,6 +51,7 @@ onMounted(async () => {
         <el-menu-item index="admin-products">商品管理</el-menu-item>
         <el-menu-item index="admin-categories">分类管理</el-menu-item>
         <el-menu-item index="admin-payment">支付配置</el-menu-item>
+        <el-menu-item index="admin-users">用户管理</el-menu-item>
         <el-menu-item index="admin-accounts">管理员账户</el-menu-item>
       </el-menu>
     </el-aside>

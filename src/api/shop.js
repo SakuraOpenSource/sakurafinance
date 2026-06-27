@@ -14,6 +14,11 @@ export function getProducts(categoryId) {
   })
 }
 
+// 获取前台可用支付方式（仅 type/name），后端返回 { paymentMethods: [...] }
+export function getPublicPaymentMethods() {
+  return request.get('/payment-methods')
+}
+
 // ---- 购物车（需登录）----
 
 // 获取当前用户购物车，后端返回 { items: [...] }
@@ -38,9 +43,14 @@ export function removeCartItem(productId) {
 
 // ---- 结算与订单（需登录）----
 
-// 结算购物车，payMethod 目前支持 'balance'，后端返回 { order }
+// 结算购物车，payMethod 为 'balance' 或已启用的网关 type，后端返回 { order }
 export function checkout(payMethod = 'balance') {
   return request.post('/checkout', { payMethod })
+}
+
+// 自助充值，payMethod 为已启用的网关 type，后端返回 { balance }
+export function recharge(amount, payMethod) {
+  return request.post('/recharge', { amount, payMethod })
 }
 
 // 获取订单列表，后端返回 { orders: [...] }

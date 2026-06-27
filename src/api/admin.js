@@ -77,3 +77,15 @@ export function createAdminAccount(payload) {
     password: payload.password,
   })
 }
+
+// ---- 用户管理与充值 ----
+
+// 获取注册用户列表，后端返回 { users: [...] }
+export function getUsers() {
+  return request.get('/admin/users')
+}
+
+// 管理员给指定用户手动充值，后端返回 { balance }
+export function rechargeUser(userId, amount) {
+  return request.post(`/admin/users/${userId}/recharge`, { amount })
+}
