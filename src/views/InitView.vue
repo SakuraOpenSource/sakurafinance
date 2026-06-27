@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Picture, UploadFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
@@ -11,8 +11,13 @@ const adminFormRef = ref()
 const submitting = ref(false)
 const logoPreview = ref('')
 
-// 0：系统配置；1：创建管理员
+// 0：系统配置；1：创建管理员；2：完成（展示后台入口）
 const currentStep = ref(0)
+// 初始化完成后后端返回的管理后台登录入口后缀
+const adminSlug = ref('')
+const adminLoginUrl = computed(() =>
+  adminSlug.value ? `${window.location.origin}/admin/${adminSlug.value}/login` : '',
+)
 
 const form = reactive({
   logo: null,
@@ -150,8 +155,10 @@ async function handleSubmitAdmin() {
   try {
     const res = await createAdmin(adminForm)
     if (res?.status === 'success') {
+      // 后端返回管理后台登录入口后缀，进入完成步骤展示给用户
+      adminSlug.value = res.adminSlug || ''
       ElMessage.success('初始化完成')
-      router.replace({ name: 'home' })
+      currentStep.value = 2
     } else {
       ElMessage.error(res?.message || '创建管理员失败，请重试')
     }
@@ -160,6 +167,24 @@ async function handleSubmitAdmin() {
   } finally {
     submitting.value = false
   }
+}
+
+// 复制管理后台登录地址
+async function copyAdminUrl() {
+  try {
+    await navigator.clipboard.writeText(adminLoginUrl.value)
+    ElMessage.success('登录地址已复制')
+  } catch {
+    ElMessage.info(adminLoginUrl.value)
+  }
+}
+
+function goAdminLogin() {
+  router.push(`/admin/${adminSlug.value}/login`)
+}
+
+function goHome() {
+  router.replace({ name: 'home' })
 }
 </script>
 
@@ -174,6 +199,7 @@ async function handleSubmitAdmin() {
       <el-steps :active="currentStep" finish-status="success" align-center class="init-steps">
         <el-step title="系统配置" />
         <el-step title="创建管理员" />
+        <el-step title="完成" />
       </el-steps>
 
       <el-form
@@ -333,6 +359,27 @@ async function handleSubmitAdmin() {
           </el-button>
         </el-form-item>
       </el-form>
+
+      <!-- 第三步：完成，展示管理后台登录入口 -->
+      <div v-show="currentStep === 2" class="init-done">
+        <el-result icon="success" title="初始化完成" sub-title="请妥善保存下方的管理后台登录地址" />
+        <el-alert
+          type="warning"
+          :closable="false"
+          show-icon
+          title="管理后台入口包含随机后缀，仅你可见。请立即保存，丢失后需查看后端配置才能找回。"
+          class="done-alert"
+        />
+        <div class="admin-url-box">
+          <span class="admin-url-label">管理后台登录地址</span>
+          <code class="admin-url">{{ adminLoginUrl }}</code>
+          <el-button type="primary" link @click="copyAdminUrl">复制</el-button>
+        </div>
+        <div class="done-actions">
+          <el-button type="primary" @click="goAdminLogin">前往管理后台</el-button>
+          <el-button @click="goHome">进入首页</el-button>
+        </div>
+      </div>
     </el-card>
   </div>
 </template>
@@ -425,5 +472,40 @@ async function handleSubmitAdmin() {
 
 .logo-remove {
   margin-left: 12px;
+}
+
+.done-alert {
+  margin-bottom: 20px;
+}
+
+.admin-url-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.admin-url-label {
+  width: 100%;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.admin-url {
+  flex: 1;
+  min-width: 0;
+  word-break: break-all;
+  font-size: 14px;
+  color: #111827;
+}
+
+.done-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
 }
 </style>
