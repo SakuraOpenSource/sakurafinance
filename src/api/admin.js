@@ -89,3 +89,21 @@ export function getUsers() {
 export function rechargeUser(userId, amount) {
   return request.post(`/admin/users/${userId}/recharge`, { amount })
 }
+
+// 修改用户昵称与用户名
+export function updateUser(userId, payload) {
+  return request.put(`/admin/users/${userId}`, {
+    nickname: payload.nickname,
+    username: payload.username,
+  })
+}
+
+// 重置用户密码
+export function resetUserPassword(userId, password) {
+  return request.put(`/admin/users/${userId}/password`, { password })
+}
+
+// 删除用户
+export function deleteUser(userId) {
+  return request.delete(`/admin/users/${userId}`)
+}
