@@ -142,4 +142,9 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
+# macOS files
 .DS_Store
+
+# ai agent files
+.claude
+.codex
